@@ -15,7 +15,7 @@ describe('Discount engine', function () {
 
     it('should throw error if discountId is provided and discountId is not registered', function () {
       app.registerUser({ id: 1 });
-      app.registerBill({ id: 1234, userId: 1, amount: 1234 });
+      app.registerBill({ id: 1234, userId: 1, amount: 1234, });
 
       expect(app.applyDiscount(1234, 1234)).to.be.an.instanceOf(Error);
     });
@@ -58,11 +58,11 @@ describe('Discount engine', function () {
     });
 
     it('should apply 5% discount if user is already customer for more than year', function () {
-      app.registerUser({ id: 1 , bookings: [{ id: '1234' }], joiningDate: 1594255674006 });
+      app.registerUser({ id: 1 , bookings: [{ id: '1234' }], joiningDate: 1534255674006 });
       app.registerDiscount({ id: 'dicount-id', code: 'FB200', amount: 200, startDate: 1594265674006, endDate: 1594265674006 })
       app.registerBill({ id: 1234, userId: 1, amount: 1234 });
 
-      expect(app.applyDiscount(1234, 'dicount-id')).to.equal(1234);
+      expect(app.applyDiscount(1234, 'dicount-id')).to.equal(1172.3);
     });
   });
 })

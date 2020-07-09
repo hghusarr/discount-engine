@@ -3,6 +3,7 @@ class Bill {
     this.id = billDetails.id;
     this.amount = billDetails.amount;
     this.user = billDetails.user;
+    this.booking = billDetails.booking;
   }
 
   static isExistingBill (id) {
