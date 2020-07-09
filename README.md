@@ -1,7 +1,7 @@
 # discount-engine
 
 #### Project setup
-1. Install nodejs
+1. Install node and npm with latest version
 2. Install the dependencies using `npm install`
 
 #### Project details
