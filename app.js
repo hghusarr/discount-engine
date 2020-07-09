@@ -1,43 +1,52 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const DiscountEngine = require('./src/DiscountEngine');
+const Discount = require('./src/Discount');
+const User = require('./src/User');
+const Bill = require('./src/Bill');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var billRouter = require('./routes/bill');
+// Creating Single Instance for discount enginer at start of the Application
+const discountingEngine = new DiscountEngine();
 
-var app = express();
+// In memory storages for different models
+global.users = [];
+global.discounts = [];
+global.bills = [];
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+module.exports = {
+  registerUser(userDetails) {
+    const user = new User(userDetails);
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+    global.users.push(user);
+  },
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/bill', billRouter)
+  registerDiscount(discountDetails) {
+    const discount = new Discount(discountDetails);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+    global.discounts.push(discount);
+  },
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  registerBill (billDetails) {
+    const userId = billDetails.userId;
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+    if (User.isExistingUser(userId)) {
+      const user = User.getUser(userId);
+      const bill = new Bill(Object.assign(billDetails, { user }));
 
-module.exports = app;
+      global.bills.push(bill);
+    }
+  },
+
+  applyDiscount (billId, discountId) {
+    if (!Bill.isExistingBill(billId)) {
+      return new Error('Bill is not available');
+    }
+
+    if (discountId && !Discount.isExistingDiscount(discountId)) {
+      return new Error('Discount is not available');
+    }
+
+    const bill = Bill.getBill(billId);
+    const discount = Discount.getDiscount(discountId);
+
+    return discountingEngine.applyDiscount(bill, discount);
+  }
+}
